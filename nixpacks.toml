@@ -4,5 +4,5 @@ nixPkgs = ["nodejs_22"]
 [phases.build]
 cmds = ["npm install", "npm run build"]
 
-[phases.start]
-cmds = ["npx serve -s dist -l 3000"]
+[start]
+cmd = "npx serve -s dist -l 3000"
