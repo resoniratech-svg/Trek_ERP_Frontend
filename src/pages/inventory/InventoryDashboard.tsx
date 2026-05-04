@@ -58,17 +58,17 @@ function InventoryDashboard() {
   
   const filteredProducts = useMemo(() => {
     if (activeDivision === "all") return products;
-    return products.filter(p => p.division?.toUpperCase() === activeDivision.toUpperCase());
+    return products.filter(p => p.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase());
   }, [products, activeDivision]);
 
   const filteredMovements = useMemo(() => {
     if (activeDivision === "all") return movements;
-    return movements.filter(m => m.division?.toUpperCase() === activeDivision.toUpperCase());
+    return movements.filter(m => m.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase());
   }, [movements, activeDivision]);
 
   const filteredSalesOrders = useMemo(() => {
     if (activeDivision === "all") return salesOrders;
-    return salesOrders.filter(so => so.division?.toUpperCase() === activeDivision.toUpperCase());
+    return salesOrders.filter(so => so.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase());
   }, [salesOrders, activeDivision]);
 
   const stats = useMemo(() => {

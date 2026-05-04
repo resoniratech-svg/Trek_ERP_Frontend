@@ -48,7 +48,7 @@ function LowStock() {
 
   const filteredProducts = products.filter(product => {
     if (activeDivision === "all") return true;
-    return product.division?.toUpperCase() === activeDivision.toUpperCase();
+    return product.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase();
   });
 
   const lowStockProducts = filteredProducts.filter((p) => p.stockQuantity <= p.minStock);
