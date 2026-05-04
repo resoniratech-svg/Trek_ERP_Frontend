@@ -7,9 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { inventoryService } from "../../services/inventoryService";
+import { useDivision } from "../../context/DivisionContext";
 
 function LowStock() {
   const { products } = useInventory();
+  const { activeDivision } = useDivision();
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -44,7 +46,12 @@ function LowStock() {
     reorderMutation.mutate({ id: String(reorderModal.product.id), quantity: qty });
   };
 
-  const lowStockProducts = products.filter((p) => p.stockQuantity <= p.minStock);
+  const filteredProducts = products.filter(product => {
+    if (activeDivision === "all") return true;
+    return product.division?.toUpperCase() === activeDivision.toUpperCase();
+  });
+
+  const lowStockProducts = filteredProducts.filter((p) => p.stockQuantity <= p.minStock);
 
   const formattedData = lowStockProducts.map((product) => ({
     ...product,

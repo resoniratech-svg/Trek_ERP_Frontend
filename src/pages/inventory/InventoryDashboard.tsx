@@ -3,6 +3,7 @@ import { Package, ShoppingCart, Truck, Activity, TrendingUp, AlertTriangle } fro
 import { useInventory } from "../../hooks/useInventory";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useDivision } from "../../context/DivisionContext";
 
 interface DashboardStatCardProps {
     title: string;
@@ -52,31 +53,45 @@ const DashboardStatCard: React.FC<DashboardStatCardProps> = ({ title, value, ico
 };
 
 function InventoryDashboard() {
-  const { products, movements, salesOrders, isLoadingProducts } = useInventory();
-  const navigate = useNavigate();
+  const { activeDivision } = useDivision();
   const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
   
+  const filteredProducts = useMemo(() => {
+    if (activeDivision === "all") return products;
+    return products.filter(p => p.division?.toUpperCase() === activeDivision.toUpperCase());
+  }, [products, activeDivision]);
+
+  const filteredMovements = useMemo(() => {
+    if (activeDivision === "all") return movements;
+    return movements.filter(m => m.division?.toUpperCase() === activeDivision.toUpperCase());
+  }, [movements, activeDivision]);
+
+  const filteredSalesOrders = useMemo(() => {
+    if (activeDivision === "all") return salesOrders;
+    return salesOrders.filter(so => so.division?.toUpperCase() === activeDivision.toUpperCase());
+  }, [salesOrders, activeDivision]);
+
   const stats = useMemo(() => {
-    const totalProducts = products.length;
-    const lowStockItems = products.filter((p) => p.stockQuantity <= p.minStock).length;
+    const totalProducts = filteredProducts.length;
+    const lowStockItems = filteredProducts.filter((p) => p.stockQuantity <= p.minStock).length;
     
-    const filteredMovements = movements.filter((m) => 
+    const dayMovements = filteredMovements.filter((m) => 
         dayjs(m.date).format("YYYY-MM-DD") === selectedDate
     );
 
-    const totalProfit = products.reduce((sum: number, p) => 
+    const totalProfit = filteredProducts.reduce((sum: number, p) => 
         sum + (p.stockQuantity * (p.sellingPrice - p.purchasePrice)), 0);
 
     return {
         totalProducts,
         lowStockItems,
         purchaseOrdersCount: 12, // Mocked or fetched via another service
-        salesOrdersCount: salesOrders.length,
-        totalMovements: movements.length,
+        salesOrdersCount: filteredSalesOrders.length,
+        totalMovements: filteredMovements.length,
         totalProfit,
-        filteredMovements
+        filteredMovements: dayMovements
     };
-  }, [products, movements, salesOrders, selectedDate]);
+  }, [filteredProducts, filteredMovements, filteredSalesOrders, selectedDate]);
 
   const lowStockCount = stats.lowStockItems;
 
@@ -164,7 +179,7 @@ function InventoryDashboard() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {movements.length > 0 ? movements.slice(0, 5).map((m, i) => (
+                            {filteredMovements.length > 0 ? filteredMovements.slice(0, 5).map((m, i) => (
                                 <tr key={i} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="px-8 py-5 font-bold text-gray-800 text-sm whitespace-nowrap">
                                         {m.type === 'IN' ? 'PO #102' : m.type === 'OUT' ? 'SO #344' : 'Adjustment'}

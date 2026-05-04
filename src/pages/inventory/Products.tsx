@@ -9,6 +9,7 @@ import { exportToCSV } from "../../utils/exportUtils";
 import type { InventoryProduct } from "../../types/inventory";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
+import { useDivision } from "../../context/DivisionContext";
 
 function Products() {
   const { user } = useAuth();
@@ -17,9 +18,16 @@ function Products() {
   const navigate = useNavigate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const { activeDivision } = useDivision();
+
   const { data: products = [], isLoading } = useQuery<InventoryProduct[]>({
     queryKey: ["products"],
     queryFn: inventoryService.getProducts
+  });
+
+  const filteredProducts = products.filter(product => {
+    if (activeDivision === "all") return true;
+    return product.division?.toUpperCase() === activeDivision.toUpperCase();
   });
 
   const handleDelete = async (id: any) => {
@@ -36,7 +44,7 @@ function Products() {
     }
   };
 
-  const formattedData = products.map((product) => ({
+  const formattedData = filteredProducts.map((product) => ({
     ...product,
     "Product": product.name,
     "Category": product.category || "General",
