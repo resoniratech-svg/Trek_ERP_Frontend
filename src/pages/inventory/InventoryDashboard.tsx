@@ -53,7 +53,9 @@ const DashboardStatCard: React.FC<DashboardStatCardProps> = ({ title, value, ico
 };
 
 function InventoryDashboard() {
+  const { products, movements, salesOrders, isLoadingProducts } = useInventory();
   const { activeDivision } = useDivision();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
   
   const filteredProducts = useMemo(() => {
