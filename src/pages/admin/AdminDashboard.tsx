@@ -68,15 +68,35 @@ export default function AdminDashboard() {
     }, []);
 
     // 1. Fetch all dashboard data from mock API
-    const { data: dashboardData, isLoading } = useQuery<AdminDashboardData>({
+    const { data: dashboardData, isLoading, error, isError } = useQuery<AdminDashboardData>({
         queryKey: ["admin-dashboard", activeDivision],
-        queryFn: () => adminService.getDashboardStats(activeDivision)
+        queryFn: () => adminService.getDashboardStats(activeDivision),
+        retry: 1 // Only retry once to avoid infinite loading delays on critical failures
     });
 
     const currentDivision = DIVISIONS.find(d => d.id === activeDivision);
 
-    if (isLoading || !dashboardData) {
+    if (isLoading) {
         return <PageLoader message="Aggregating Executive Analytics..." />;
+    }
+
+    if (isError || !dashboardData) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-xl border border-red-100 p-8 text-center">
+                <AlertTriangle size={48} className="text-red-400 mb-4" />
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Analytics Engine Offline</h2>
+                <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
+                    We encountered a connection issue while fetching the dashboard statistics. 
+                    {(error as any)?.message || "The server might be unreachable or returning an error."}
+                </p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors shadow-sm font-medium text-sm"
+                >
+                    Retry Connection
+                </button>
+            </div>
+        );
     }
 
     const stats = dashboardData.stats;
