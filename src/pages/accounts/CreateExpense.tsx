@@ -14,6 +14,8 @@ import type { DivisionId } from "../../constants/divisions";
 import FileUploader from "../../components/FileUploader";
 import type { Invoice } from "../../types/finance";
 import { financeService } from "../../services/financeService";
+import { projectService } from "../../services/projectService";
+import { quotationService } from "../../services/quotationService";
 import type { Project } from "../../types/project";
 import type { Proposal } from "../../types/pm";
 
@@ -112,6 +114,17 @@ function CreateExpense() {
     enabled: isEditing
   });
 
+  // Fetch real projects and quotations for the dropdown
+  const { data: apiProjects = [] } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => projectService.getProjects()
+  });
+
+  const { data: apiQuotations = [] } = useQuery({
+    queryKey: ["quotations"],
+    queryFn: () => quotationService.getQuotations()
+  });
+
   useEffect(() => {
     if (dbExpense) {
       setForm(prev => ({
@@ -141,34 +154,29 @@ function CreateExpense() {
   // Load reference options based on division
   useEffect(() => {
     // Map internal division IDs to data filter labels
-    const mappedRefType = form.division === "service" ? "business" : form.division;
+    const mappedRefType = form.division === "service" ? "SERVICE" : form.division.toUpperCase();
 
-    if (mappedRefType === "contracting" || mappedRefType === "trading") {
-      const projects: Project[] = JSON.parse(localStorage.getItem("trek_projects") || "[]");
-      const quotations: Invoice[] = JSON.parse(localStorage.getItem("trek_quotations") || "[]");
-      const filtered = quotations.filter(
-        (q) => (q.division || q.branch || "").toLowerCase() === mappedRefType
-      );
-      const options: ReferenceOption[] = [ 
-        ...projects.map((p) => ({
-          id: p.id!,
-          label: `Project: ${p.name || p.projectName}`,
-        })),
-        ...filtered.map((q) => ({
-          id: q.id!,
-          label: `Quote: ${q.project} - ${q.client}`,
-        })),
-      ];
-      setReferenceOptions(options);
-    } else if (mappedRefType === "business") {
-      const proposals: Proposal[] = JSON.parse(localStorage.getItem("trek_proposals") || "[]");
-      const options: ReferenceOption[] = proposals.map((p) => ({
-        id: p.id,
-        label: `Proposal: ${p.proposalNo || p.client || p.id}`,
-      }));
-      setReferenceOptions(options);
-    }
-  }, [form.division]);
+    const filteredProjects = apiProjects.filter(p => 
+      (p.division || "").toUpperCase() === mappedRefType
+    );
+    
+    const filteredQuotations = apiQuotations.filter(q => 
+      (q.division || "").toUpperCase() === mappedRefType
+    );
+
+    const options: ReferenceOption[] = [
+      ...filteredProjects.map((p) => ({
+        id: String(p.id),
+        label: `Project: ${p.name || p.projectName}`,
+      })),
+      ...filteredQuotations.map((q) => ({
+        id: String(q.id),
+        label: `Ref: ${q.qtn_number} - ${q.project_name || q.client_name || 'No Name'}`,
+      })),
+    ];
+    
+    setReferenceOptions(options);
+  }, [form.division, apiProjects, apiQuotations]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
