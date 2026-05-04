@@ -120,7 +120,13 @@ export default function AddEditEmployee() {
         if (isEdit) await queryClient.invalidateQueries({ queryKey: ["employee", id] });
         
         alert(`Employee ${isEdit ? 'updated' : 'registered'} successfully!`);
-        navigate("/employees/list");
+        
+        const from = searchParams.get("from");
+        if (from === "pro-tracking") {
+            navigate("/pro-services");
+        } else {
+            navigate("/employees/list");
+        }
     },
     onError: (error: Error) => {
         alert(`Failed to ${isEdit ? 'update' : 'create'} employee: ${error.message || 'Unknown error'}`);

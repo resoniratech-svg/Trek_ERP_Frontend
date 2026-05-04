@@ -2,8 +2,8 @@ import api from "./api";
 import type { InventoryProduct, InventoryMovement, SalesOrder, ProfitStats } from "../types/inventory";
 
 export const inventoryService = {
-  getProducts: async (): Promise<InventoryProduct[]> => {
-    const { data } = await api.get("/products");
+  getProducts: async (division?: string): Promise<InventoryProduct[]> => {
+    const { data } = await api.get("/products", { params: { division } });
     return data.data || data;
   },
 
@@ -32,18 +32,18 @@ export const inventoryService = {
     return data.data || data;
   },
 
-  getMovements: async (): Promise<InventoryMovement[]> => {
-    const { data } = await api.get("/inventory/movements");
+  getMovements: async (division?: string): Promise<InventoryMovement[]> => {
+    const { data } = await api.get("/inventory/movements", { params: { division } });
     return data.data || data;
   },
 
-  getSalesOrders: async (): Promise<SalesOrder[]> => {
-    const { data } = await api.get("/inventory/sales-orders");
+  getSalesOrders: async (division?: string): Promise<SalesOrder[]> => {
+    const { data } = await api.get("/inventory/sales-orders", { params: { division } });
     return data.data || data;
   },
 
-  getProfitStats: async (): Promise<ProfitStats> => {
-    const { data } = await api.get("/inventory/profit-stats");
+  getProfitStats: async (division?: string): Promise<ProfitStats> => {
+    const { data } = await api.get("/inventory/profit-stats", { params: { division } });
     return data.data || data;
   },
 
@@ -64,6 +64,11 @@ export const inventoryService = {
 
   reorderProduct: async (id: string, quantity: number): Promise<InventoryProduct> => {
     const { data } = await api.patch(`/inventory/products/${id}/reorder`, { quantity });
+    return data.data || data;
+  },
+
+  getPurchaseOrders: async (division?: string): Promise<any[]> => {
+    const { data } = await api.get("/purchase-orders", { params: { division } });
     return data.data || data;
   }
 };

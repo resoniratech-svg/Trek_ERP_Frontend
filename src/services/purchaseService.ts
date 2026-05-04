@@ -2,8 +2,8 @@ import api from "./api";
 import type { PurchaseOrder } from "../types/inventory";
 
 export const purchaseService = {
-  getPurchaseOrders: async (): Promise<PurchaseOrder[]> => {
-    const response = await api.get("/purchase-orders");
+  getPurchaseOrders: async (division?: string): Promise<PurchaseOrder[]> => {
+    const response = await api.get("/purchase-orders", { params: { division } });
     return response.data.data || response.data;
   },
 

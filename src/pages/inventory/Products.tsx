@@ -21,14 +21,11 @@ function Products() {
   const { activeDivision } = useDivision();
 
   const { data: products = [], isLoading } = useQuery<InventoryProduct[]>({
-    queryKey: ["products"],
-    queryFn: inventoryService.getProducts
+    queryKey: ["products", activeDivision],
+    queryFn: () => inventoryService.getProducts(activeDivision)
   });
 
-  const filteredProducts = products.filter(product => {
-    if (activeDivision === "all") return true;
-    return product.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase();
-  });
+  const filteredProducts = products;
 
   const handleDelete = async (id: any) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;

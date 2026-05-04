@@ -52,7 +52,8 @@ export const userService = {
       start_date: user.start_date,
       renewal_date: user.renewal_date,
       contract_type: user.contract_type,
-      password_plain: user.password_plain
+      password_plain: user.password_plain,
+      client_id: user.client_id // Add this
     }));
   },
 

@@ -10,8 +10,11 @@ import api from "../../services/api";
 import type { SalesOrder } from "../../types/inventory";
 import { useAuth } from "../../context/AuthContext";
 
+import { useDivision } from "../../context/DivisionContext";
+
 function SalesOrders() {
   const { user } = useAuth();
+  const { activeDivision } = useDivision();
   const canManageSOs = user?.role === "SUPER_ADMIN" || user?.role === "PROJECT_MANAGER";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -19,8 +22,8 @@ function SalesOrders() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data: salesOrders = [], isLoading } = useQuery<SalesOrder[]>({
-    queryKey: ["sales-orders"],
-    queryFn: inventoryService.getSalesOrders
+    queryKey: ["sales-orders", activeDivision],
+    queryFn: () => inventoryService.getSalesOrders(activeDivision)
   });
 
   const handleDelete = async (id: any) => {

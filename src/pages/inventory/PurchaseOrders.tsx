@@ -10,8 +10,11 @@ import api from "../../services/api";
 import type { PurchaseOrder } from "../../types/inventory";
 import { useAuth } from "../../context/AuthContext";
 
+import { useDivision } from "../../context/DivisionContext";
+
 function PurchaseOrders() {
   const { user } = useAuth();
+  const { activeDivision } = useDivision();
   const canManagePOs = user?.role === "SUPER_ADMIN" || user?.role === "ACCOUNTS";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -19,8 +22,8 @@ function PurchaseOrders() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data: purchaseOrders = [], isLoading } = useQuery<PurchaseOrder[]>({
-    queryKey: ["purchase-orders"],
-    queryFn: purchaseService.getPurchaseOrders
+    queryKey: ["purchase-orders", activeDivision],
+    queryFn: () => purchaseService.getPurchaseOrders(activeDivision)
   });
 
   const handleDelete = async (id: any) => {

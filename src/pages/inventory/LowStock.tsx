@@ -46,10 +46,7 @@ function LowStock() {
     reorderMutation.mutate({ id: String(reorderModal.product.id), quantity: qty });
   };
 
-  const filteredProducts = products.filter(product => {
-    if (activeDivision === "all") return true;
-    return product.division?.trim().toUpperCase() === activeDivision.trim().toUpperCase();
-  });
+  const filteredProducts = products;
 
   const lowStockProducts = filteredProducts.filter((p) => p.stockQuantity <= p.minStock);
 

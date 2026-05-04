@@ -98,10 +98,11 @@ export default function ClientAutocomplete({ value, onChange, division, placehol
         setShowSuggestions(true);
     };
 
-    const handleSelect = (client: Client) => {
+    const handleSelect = (client: any) => {
         const displayName = client.name;
         setInputValue(displayName);
-        onChange(displayName, client.id);
+        // Prioritize client_id for database linking, fallback to user id
+        onChange(displayName, client.client_id || client.id);
         setShowSuggestions(false);
     };
 

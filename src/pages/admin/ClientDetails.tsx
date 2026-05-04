@@ -19,6 +19,7 @@ import PageLoader from "../../components/PageLoader";
 import StatusBadge from "../../components/StatusBadge";
 import { useQuery } from "@tanstack/react-query";
 import { clientService } from "../../services/clientService";
+import { getUploadUrl } from "../../services/api";
 import dayjs from "dayjs";
 
 export default function ClientDetails() {
@@ -137,7 +138,7 @@ export default function ClientDetails() {
                         </div>
                         {client.qidDocUrl && (
                             <a
-                                href={`http://localhost:5000${client.qidDocUrl}`}
+                                href={getUploadUrl(client.qidDocUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 bg-white rounded-lg border border-slate-200 text-brand-600 hover:text-brand-700 hover:border-brand-200 transition-all shadow-sm"
@@ -154,7 +155,7 @@ export default function ClientDetails() {
                         </div>
                         {client.crDocUrl && (
                             <a
-                                href={`http://localhost:5000${client.crDocUrl}`}
+                                href={getUploadUrl(client.crDocUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 bg-white rounded-lg border border-slate-200 text-brand-600 hover:text-brand-700 hover:border-brand-200 transition-all shadow-sm"
@@ -171,7 +172,7 @@ export default function ClientDetails() {
                         </div>
                         {client.computerCardDocUrl && (
                             <a
-                                href={`http://localhost:5000${client.computerCardDocUrl}`}
+                                href={getUploadUrl(client.computerCardDocUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 bg-white rounded-lg border border-slate-200 text-brand-600 hover:text-brand-700 hover:border-brand-200 transition-all shadow-sm"
@@ -209,7 +210,7 @@ export default function ClientDetails() {
                                 )}
                                 {license.documentUrl && (
                                     <a
-                                        href={`http://localhost:5000${license.documentUrl}`}
+                                        href={getUploadUrl(license.documentUrl)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="absolute top-4 right-4 p-2 bg-white rounded-lg border border-slate-200 text-brand-600 hover:text-brand-700 shadow-sm opacity-0 group-hover:opacity-100 transition-all"
@@ -242,7 +243,7 @@ export default function ClientDetails() {
                             </div>
                             {client.contractDocUrl && (
                                 <a
-                                    href={`http://localhost:5000${client.contractDocUrl}`}
+                                    href={getUploadUrl(client.contractDocUrl)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 bg-white rounded-lg border border-slate-200 text-brand-600 hover:border-brand-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
@@ -303,7 +304,7 @@ export default function ClientDetails() {
                                 </div>
                                 {agreement.fileUrl && (
                                     <a
-                                        href={`http://localhost:5000${agreement.fileUrl}`}
+                                        href={getUploadUrl(agreement.fileUrl)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-brand-600 text-xs font-bold hover:underline flex items-center gap-1 shrink-0"

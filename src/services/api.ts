@@ -4,6 +4,7 @@ import axios, { type AxiosInstance } from "axios";
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
+console.log("[API] Base URL:", api.defaults.baseURL);
 
 // Request Interceptor: inject JWT token
 api.interceptors.request.use(

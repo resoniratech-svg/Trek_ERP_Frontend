@@ -56,7 +56,9 @@ const CreateProject = () => {
     name: '',
     description: '',
     client: '',
+    client_id: '',
     manager: '',
+    manager_id: '',
     budget: '',
     startDate: '',
     endDate: '',
@@ -68,7 +70,9 @@ const CreateProject = () => {
     setFormData(prev => ({
       ...prev,
       client: '',
-      manager: ''
+      client_id: '',
+      manager: '',
+      manager_id: ''
     }));
   }, [selectedSector]);
 
@@ -88,11 +92,13 @@ const CreateProject = () => {
       // Map frontend form fields to PostgreSQL column names
       const payload = {
         project_name: formData.name,
+        client_id: formData.client_id || null,
         client_name: formData.client,
         contract_value: parseFloat(String(formData.budget).replace(/[^0-9.]/g, "")) || 0,
         start_date: formData.startDate || null,
         end_date: formData.endDate || null,
         manager: formData.manager || null,
+        manager_id: formData.manager_id || null,
         description: formData.description || null,
         division: selectedSector || null,
         status: formData.status || 'Active',
@@ -237,7 +243,7 @@ const CreateProject = () => {
                   <div className="relative">
                     <ClientAutocomplete
                       value={formData.client}
-                      onChange={(name) => setFormData({ ...formData, client: name })}
+                      onChange={(name, id) => setFormData({ ...formData, client: name, client_id: id || '' })}
                       division={selectedSector}
                       placeholder="Search or specify client"
                       className="w-full"
@@ -252,7 +258,7 @@ const CreateProject = () => {
                   <div className="relative">
                     <ManagerAutocomplete
                       value={formData.manager}
-                      onChange={(name) => setFormData({ ...formData, manager: name })}
+                      onChange={(name, id) => setFormData({ ...formData, manager: name, manager_id: id || '' })}
                       division={selectedSector}
                       placeholder="Search or specify manager"
                       className="w-full"

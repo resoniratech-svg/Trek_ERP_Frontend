@@ -7,13 +7,16 @@ import { useNavigate } from "react-router-dom";
 import { inventoryService } from "../../services/inventoryService";
 import type { InventoryMovement } from "../../types/inventory";
 
+import { useDivision } from "../../context/DivisionContext";
+
 function InventoryMovements() {
   const navigate = useNavigate();
+  const { activeDivision } = useDivision();
 
   // 1. Fetch Movements
   const { data: movements = [], isLoading } = useQuery<InventoryMovement[]>({
-    queryKey: ["inventory-movements"],
-    queryFn: inventoryService.getMovements
+    queryKey: ["inventory-movements", activeDivision],
+    queryFn: () => inventoryService.getMovements(activeDivision)
   });
 
   if (isLoading) {

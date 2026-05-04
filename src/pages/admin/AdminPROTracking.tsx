@@ -224,24 +224,26 @@ export default function AdminPROTracking() {
             >
               <option value="All">All Clients</option>
               {sectorFilteredClients.map(client => (
-                <option key={client.id} value={client.name}>{client.contactPerson}</option>
+                <option key={client.id} value={client.name}>{client.name} ({client.contactPerson || 'No Contact'})</option>
               ))}
             </select>
           </div>
           
           <div className="flex flex-col gap-1 flex-1 max-w-xs">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Company Name</label>
-            <div className="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-500 min-h-[38px] flex items-center">
-              {selectedClient === "All" ? "Select a client to view company" : selectedClient}
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Company</label>
+            <div className="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-500 min-h-[38px] flex items-center italic">
+              {selectedClient === "All" ? "Select a client to manage employees" : selectedClient}
             </div>
           </div>
         </div>
 
-        <button 
-          onClick={() => {
-            const params = new URLSearchParams();
-            if (selectedClient !== "All") {
+        {selectedClient !== "All" && (
+          <button 
+            onClick={() => {
+              const params = new URLSearchParams();
               params.append("company", selectedClient);
+              params.append("from", "pro-tracking"); // Tracking source for return redirect
+              
               // Find the client's division to pre-fill
               const client = safeClients.find(c => c.name === selectedClient);
               if (client?.division) {
@@ -249,15 +251,14 @@ export default function AdminPROTracking() {
               } else if (activeDivision !== "all") {
                 params.append("division", activeDivision);
               }
-            } else if (activeDivision !== "all") {
-              params.append("division", activeDivision);
-            }
-            navigate(`/employees/create?${params.toString()}`);
-          }}
-          className="px-6 py-2 bg-brand-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/20 shrink-0 flex items-center gap-2"
-        >
-          <Users size={14} /> Add Employee
-        </button>
+              
+              navigate(`/employees/create?${params.toString()}`);
+            }}
+            className="px-6 py-2 bg-brand-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/20 shrink-0 flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300"
+          >
+            <Users size={14} /> Add Employee to {selectedClient}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -281,7 +282,7 @@ export default function AdminPROTracking() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {filteredContracts.map((contract: any) => {
+                  {filteredContracts.length > 0 ? filteredContracts.map((contract: any) => {
                     return (
                       <tr key={contract.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-6 py-4">
@@ -327,7 +328,19 @@ export default function AdminPROTracking() {
                         </td>
                       </tr>
                     );
-                  })}
+                  }) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                           <Users className="text-slate-200" size={48} />
+                           <p className="text-slate-400 font-bold">No staff records found for {selectedClient === "All" ? "any client" : selectedClient}</p>
+                           {selectedClient !== "All" && (
+                             <p className="text-xs text-slate-400">Click 'Add Employee' above to register new staff for this company.</p>
+                           )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

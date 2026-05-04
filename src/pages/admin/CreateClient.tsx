@@ -8,6 +8,7 @@ import type { DivisionId } from "../../constants/divisions";
 import type { License } from "../../types/client";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { userService } from "../../services/userService";
+import api, { getUploadUrl } from "../../services/api";
 import MiniFileUpload from "../../components/forms/MiniFileUpload";
 
 function CreateClient() {
@@ -105,16 +106,16 @@ function CreateClient() {
     let contractDocUrl = "";
 
     const uploadFile = async (file: File, module: string) => {
-      const formData = new FormData();
-      formData.append("files", file);
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/upload?module=${module}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const result = await res.json();
-      return result.success ? result.data[0].url : "";
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        const res = await api.post(`/upload?module=${module}`, formData);
+        if (!res.data.success) throw new Error(res.data.message || "Upload failed");
+        return res.data.data[0].url;
+      } catch (err: any) {
+        console.error(`[UPLOAD] Failed to upload ${file.name}:`, err);
+        throw new Error(`Upload failed for ${file.name}: ${err.message}`);
+      }
     };
 
     try {
@@ -136,14 +137,8 @@ function CreateClient() {
       if (uploadedFiles.length > 0) {
         const formData = new FormData();
         uploadedFiles.forEach((file) => formData.append("files", file));
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/upload?module=general", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-        const result = await res.json();
-        if (result.success) uploadedDocs = result.data;
+        const res = await api.post("/upload?module=general", formData);
+        if (res.data.success) uploadedDocs = res.data.data;
       }
 
       const userPayload = {

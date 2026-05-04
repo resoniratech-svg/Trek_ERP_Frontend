@@ -8,6 +8,7 @@ import type { License } from "../../types/client";
 import { ArrowLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { clientService } from "../../services/clientService";
+import api, { getUploadUrl } from "../../services/api";
 import dayjs from "dayjs";
 
 function EditClient() {
@@ -128,16 +129,16 @@ function EditClient() {
   };
 
   const uploadFile = async (file: File, module: string) => {
-    const formData = new FormData();
-    formData.append("files", file);
-    const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/api/upload?module=${module}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    const result = await res.json();
-    return result.success ? result.data[0].url : "";
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
+      const res = await api.post(`/upload?module=${module}`, formData);
+      if (!res.data.success) throw new Error(res.data.message || "Upload failed");
+      return res.data.data[0].url;
+    } catch (err: any) {
+      console.error(`[UPLOAD] Failed to upload ${file.name}:`, err);
+      throw new Error(`Upload failed for ${file.name}: ${err.message}`);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -165,14 +166,8 @@ function EditClient() {
       if (uploadedFiles.length > 0) {
         const formData = new FormData();
         uploadedFiles.forEach((f) => formData.append("files", f));
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/upload?module=general", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-        const result = await res.json();
-        if (result.success) newSupportingDocs = result.data;
+        const res = await api.post(`/upload?module=general`, formData);
+        if (res.data.success) newSupportingDocs = res.data.data;
       }
 
       const payload = {
@@ -310,7 +305,7 @@ function EditClient() {
                 onFileSelect={setQidFile} 
               />
               {existingDocs.qidDocUrl && (
-                <a href={existingDocs.qidDocUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current QID Document</a>
+                <a href={getUploadUrl(existingDocs.qidDocUrl)} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current QID Document</a>
               )}
             </div>
 
@@ -330,7 +325,7 @@ function EditClient() {
                 onFileSelect={setCrFile} 
               />
               {existingDocs.crDocUrl && (
-                <a href={existingDocs.crDocUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current CR Document</a>
+                <a href={getUploadUrl(existingDocs.crDocUrl)} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current CR Document</a>
               )}
             </div>
 
@@ -346,7 +341,7 @@ function EditClient() {
                   />
                 </div>
                 {existingDocs.computerCardDocUrl && (
-                  <a href={existingDocs.computerCardDocUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline block">View Current Computer Card</a>
+                  <a href={getUploadUrl(existingDocs.computerCardDocUrl)} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline block">View Current Computer Card</a>
                 )}
               </div>
               <MiniFileUpload 
@@ -398,7 +393,7 @@ function EditClient() {
                 </div>
                 <div className="col-span-2">
                   {existingDocs.contractDocUrl && (
-                    <a href={existingDocs.contractDocUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current Contract Document</a>
+                    <a href={getUploadUrl(existingDocs.contractDocUrl)} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:underline">View Current Contract Document</a>
                   )}
                 </div>
               </div>
@@ -454,7 +449,7 @@ function EditClient() {
                       onFileSelect={(file) => handleLicenseChange(index, "file", file)} 
                     />
                     {license.documentUrl && (
-                      <a href={license.documentUrl as string} target="_blank" rel="noreferrer" className="text-[10px] text-brand-600 hover:underline mt-1 block">View Existing License File</a>
+                      <a href={getUploadUrl(license.documentUrl as string)} target="_blank" rel="noreferrer" className="text-[10px] text-brand-600 hover:underline mt-1 block">View Existing License File</a>
                     )}
                   </div>
                   {licenses.length > 1 && (
